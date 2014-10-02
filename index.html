@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Orientation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <script type="text/javascript" src="script/jquery.min.js"></script>
+    <style type="text/css">
+      section {
+        position: relative;
+        width: 100%;
+      }
+
+      .imageContainer {
+        padding-top: 20px;
+        perspective: 300;
+      }
+
+    </style>
+  </head>
+  <body>
+
+    <section>
+      <h2>Device orientation</h2>
+      <table>
+        <tr>
+          <td>Event</td>
+          <td id="event"></td>
+        </tr>
+        <tr>
+          <td>Left/Right (gamma)</td>
+          <td id="leftRight"></td>
+        </tr>
+        <tr>
+          <td>Front/Back (beta)</td>
+          <td id="frontBack"></td>
+        </tr>
+        <tr>
+          <td>Direction (alpha)</td>
+          <td id="direction"></td>
+        </tr>
+      </table>
+      <div class="imageContainer">
+        <img width="25%" height="25%" src="logo_html5.png">
+      </div>
+    </section>
+
+    <section>
+      <h2>Device motion</h2>
+      <strong class="move"></strong>
+      <table>
+        <tr>
+          <td>Event</td>
+          <td id="event2"></td>
+        </tr>
+        <tr>
+          <td>acceleration</td>
+          <td id="acceleration"></td>
+        </tr>
+        <tr>
+          <td>gravity</td>
+          <td id="gravityAcceleration"></td>
+        </tr>
+        <tr>
+          <td>rotation rate</td>
+          <td id="rotation"></td>
+        </tr>
+        <tr>
+          <td>interval</td>
+          <td id="interval"></td>
+        </tr>
+      </table>
+    </section>
+
+    <script type="text/javascript" >
+      $(function () {
+        if (window.DeviceOrientationEvent) {
+          $('#event').html('supported');
+          window.addEventListener('deviceorientation', function (event) {
+            var leftRight = event.gamma;
+
+            var frontBack = event.beta;
+
+            var direction = event.alpha;
+
+            $('#leftRight').html(Math.round(leftRight));
+            $('#frontBack').html(Math.round(frontBack));
+            $('#direction').html(Math.round(direction));
+
+            $('.imageContainer img').css('webkitTransform', 'rotate('+ leftRight +'deg) rotate3d(1,0,0, '+ (frontBack*-1)+'deg)');
+            $('.imageContainer img').css('MozTransform', 'rotate('+ leftRight +'deg)');
+            $('.imageContainer img').css('transform', 'rotate('+ leftRight +'deg) rotate3d(1,0,0, '+ (frontBack*-1)+'deg)');
+
+          }, false);
+        }
+        else {
+          $('#event').html('NOT supported');
+        }
+
+        if (window.DeviceMotionEvent) {
+          $('#event2').html('supported');
+          var myAcceleration = {}, myAccelerationIncludingGravity = {}, myRotationRate = {};
+          window.addEventListener('devicemotion', function (eventMotion) {
+            var acceleration = eventMotion.acceleration;
+            if (acceleration) {
+              myAcceleration.x = Math.round(acceleration.x*100)/100;
+              myAcceleration.y = Math.round(acceleration.y*100)/100;
+              myAcceleration.z = Math.round(acceleration.z*100)/100;
+              if (myAcceleration.x >= 3 ) {
+                $('.move').html('Move left');
+              }
+              if (myAcceleration.x <= -3 ) {
+                $('.move').html('Move right');
+              }
+              if (myAcceleration.z >= 5 ) {
+                $('.move').html('Move down');
+              }
+              if (myAcceleration.z <= -5 ) {
+                $('.move').html('Move up');
+              }
+              $('#acceleration').html('[' + myAcceleration.x + ', ' + myAcceleration.y + ', ' + myAcceleration.z + ']');
+            }
+
+            var accelerationIncludingGravity = eventMotion.accelerationIncludingGravity;
+            if (accelerationIncludingGravity) {
+              myAccelerationIncludingGravity.x = Math.round(accelerationIncludingGravity.x*100)/100;
+              myAccelerationIncludingGravity.y = Math.round(accelerationIncludingGravity.y*100)/100;
+              myAccelerationIncludingGravity.z = Math.round(accelerationIncludingGravity.z*100)/100;
+              $('#gravityAcceleration').html('[' + myAccelerationIncludingGravity.x + ', ' + myAccelerationIncludingGravity.y + ', ' + myAccelerationIncludingGravity.z + ']');
+            }
+
+            var rotationRate = eventMotion.rotationRate;
+            if (rotationRate) {
+              myRotationRate.alpha = Math.round(rotationRate.alpha*100)/100;
+              myRotationRate.beta = Math.round(rotationRate.beta*100)/100;
+              myRotationRate.gamma = Math.round(rotationRate.gamma*100)/100;
+              $('#rotation').html('[' + myRotationRate.alpha + ', ' + myRotationRate.beta + ', ' + myRotationRate.gamma + ']');
+            }
+
+            var interval = eventMotion.interval;
+            if (interval) {
+              $('#interval').html(interval);
+            }
+
+          }, false);
+        } else {
+          $('#event2').html('NOT supported');
+        }
+
+      });
+    </script>
+  </body>
+</html>
